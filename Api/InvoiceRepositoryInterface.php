@@ -1,6 +1,6 @@
 <?php
 
-namespace FossilEcom\LBDocumentGenerator\Api;
+namespace FossilEcommerce\LBDocumentGenerator\Api;
 
 
 interface InvoiceRepositoryInterface
