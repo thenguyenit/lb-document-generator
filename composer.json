@@ -1,0 +1,21 @@
+{
+  "name": "fossil-ecommerce/lb-document-generator",
+  "description": "Logic Broker Document Generator",
+  "license": "Open Software License (OSL)",
+  "repositories":[
+    {
+      "type": "vcs",
+      "url":"git@bitbucket.org:fossil-ecommerce/lb-document-generator.git"
+    }
+  ],
+  "require": {
+    "php": "~5.5.0|~5.6.0|~7.0.0"
+  },
+  "type": "magento2-module",
+  "autoload": {
+    "files": [ "registration.php" ],
+    "psr-4": {
+      "FossilEcom\\LBDocumentGenerator\\": ""
+    }
+  }
+}
