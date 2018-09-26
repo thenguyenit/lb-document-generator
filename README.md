@@ -8,16 +8,7 @@ Run the command:
 ```
 composer require --dev fossil-ecommerce/lb-document-generator:dev-master
 ```
- 
- ```
- "repositories":[
-      ...
-     {
-        "type": "vcs",
-        "url":"https://bitbucket.org/fossil-ecommerce/lb-document-generator.git"
-     }
- ]
-```
+
 Or
 Add these lines to the composer.json of your project
 
