@@ -5,56 +5,23 @@ namespace FossilEcommerce\LBDocumentGenerator\Model;
 use FossilEcommerce\LBDocumentGenerator\Api\InvoiceRepositoryInterface;
 
 use \FossilGroup\LogicBroker\Helper\Data;
-use \FossilGroup\LogicBroker\Model\Status;
-use \Magento\Framework\Registry;
-use \Magento\Framework\ObjectManagerInterface;
-use Magento\Payment\Model\PaymentMethod;
-use Magento\Sales\Api\Data\LineItemInterface;
 use Magento\Sales\Api\Data\OrderItemInterface;
 use \Magento\Sales\Model\Order;
 use \Magento\Sales\Model\OrderFactory;
-use \Magento\Sales\Model\Order\Email\Sender\InvoiceSender;
-use \FossilGroup\LogicBroker\Model\Sales\Service\InvoiceService;
-use \Customweb\ComputopCw\Model\DependencyContainer;
-use \Magento\Framework\Webapi\Rest\Response\Renderer\Json;
 use \FossilGroup\OrderTracking\Model\ResourceModel\Narvar\CollectionFactory as NarVarCollection;
 
 
 class InvoiceRepository implements InvoiceRepositoryInterface
 {
-    const API_INVOICE = 'api/v1/invoices/';
-    const API_INVOICE_STATUS = 'api/v1/invoices?filters.status=100';
-
-    /* Mapping narvar table field names */
+    /* Mapping Narvar table field names */
     const LOGIC_BLOCKER_CODE_FIELD = 'logic_blocker_code';
     const SAP_CARRIER_CODE_FIELD = 'sap_carrier_code';
     const MAGENTO_SHIPPING_METHOD_FIELD = 'ma_shipping_method';
-
-
-    /**
-     * @var \Magento\Sales\Model\Order\Email\Sender\InvoiceSender
-     */
-    protected $_invoiceSender;
 
     /**
      * @var \Magento\Sales\Model\OrderFactory
      */
     protected $_order;
-
-    /**
-     * @var \FossilGroup\LogicBroker\Model\Sales\Service\InvoiceService
-     */
-    protected $_invoiceService;
-
-    /**
-     * @var string
-     */
-    protected $_apiKey;
-
-    /**
-     * @var string
-     */
-    protected $_apiUrl;
 
     /**
      * @var \FossilGroup\LogicBroker\Helper\Data
@@ -67,66 +34,20 @@ class InvoiceRepository implements InvoiceRepositoryInterface
     protected $_trackingMappingCollection;
 
     /**
-     *
-     * @var \Customweb\ComputopCw\Model\DependencyContainer
-     */
-    protected $_container;
-
-    /**
-     * Core registry
-     *
-     * @var \Magento\Framework\Registry
-     */
-    protected $_coreRegistry = null;
-
-    /**
-     * @var \Magento\Framework\ObjectManagerInterface|null
-     */
-    protected $_objectManager = null;
-
-    /**
-     * @var \Magento\Framework\Webapi\Rest\Response\Renderer\Json
-     */
-    protected $_jsonRenderer = null;
-
-    /**
-     * @var \FossilGroup\LogicBroker\Model\Sales\Service\InvoiceService
-     */
-    protected $invoiceShipment = null;
-
-    /**
      * PullInvoices constructor.
      *
      * @param \FossilGroup\LogicBroker\Helper\Data $helper
      * @param \Magento\Sales\Model\OrderFactory $order
-     * @param \Magento\Sales\Model\Order\Email\Sender\InvoiceSender $invoiceSender
-     * @param InvoiceService|\Magento\Sales\Model\Service\InvoiceService $invoiceService
-     * @param \Customweb\ComputopCw\Model\DependencyContainer $container
-     * @param \Magento\Framework\Registry $coreRegistry
-     * @param \Magento\Framework\ObjectManagerInterface $objectManager
-     * @param \Magento\Framework\Webapi\Rest\Response\Renderer\Json $jsonRenderer
      * @param NarVarCollection $trackingMappingCollection
      */
     public function __construct(
         Data $helper,
         OrderFactory $order,
-        InvoiceSender $invoiceSender,
-        InvoiceService $invoiceService,
-        DependencyContainer $container,
-        Registry $coreRegistry,
-        ObjectManagerInterface $objectManager,
-        Json $jsonRenderer,
         NarVarCollection $trackingMappingCollection
     )
     {
         $this->_helper                    = $helper;
-        $this->_invoiceSender             = $invoiceSender;
         $this->_order                     = $order;
-        $this->_invoiceService            = $invoiceService;
-        $this->_container                 = $container;
-        $this->_coreRegistry              = $coreRegistry;
-        $this->_objectManager             = $objectManager;
-        $this->_jsonRenderer              = $jsonRenderer;
         $this->_trackingMappingCollection = $trackingMappingCollection;
     }
 
@@ -176,6 +97,10 @@ class InvoiceRepository implements InvoiceRepositoryInterface
         /** @var  Order $order */
         $order = $this->findOrderByOrderNumber($orderNumber);
 
+        if ($order->isEmpty()) {
+            return __('Order number is not available');
+        }
+
         /** @var string $shippingMethod */
         $shippingMethod = $order->getShippingMethod();
 
@@ -185,9 +110,6 @@ class InvoiceRepository implements InvoiceRepositoryInterface
             ->addFieldToFilter(self::MAGENTO_SHIPPING_METHOD_FIELD, $shippingMethod);
         $orderTracking           = $orderTrackingCollection->fetchItem();
 
-        if (is_null($order)) {
-            return __('Order number is not available');
-        }
         $orderItems = $order->getItems();
         $_json      = $this->generateShipmentJson($order, $trackingNumber, $totalInvoice, $amountToCharge, $orderTracking);
         // Get shipment info move to shipment lines
@@ -588,5 +510,4 @@ class InvoiceRepository implements InvoiceRepositoryInterface
 
         return $_linkKey;
     }
-
 }
