@@ -5,4 +5,7 @@
     <preference for="FossilEcommerce\LBDocumentGenerator\Api\InvoiceRepositoryInterface"
                 type="FossilEcommerce\LBDocumentGenerator\Model\InvoiceRepository" />
 
+    <preference for="FossilEcommerce\LBDocumentGenerator\Api\ReturnRepositoryInterface"
+                type="FossilEcommerce\LBDocumentGenerator\Model\ReturnRepository" />
+
 </config>

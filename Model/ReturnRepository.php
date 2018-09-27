@@ -2,11 +2,11 @@
 
 namespace FossilEcommerce\LBDocumentGenerator\Model;
 
+use FossilEcommerce\LBDocumentGenerator\Api\ReturnRepositoryInterface;
 use \FossilGroup\LogicBroker\Helper\Data;
 use Magento\Sales\Api\Data\OrderItemInterface;
 use \Magento\Sales\Model\Order;
 use \Magento\Sales\Model\OrderFactory;
-use \FossilGroup\OrderTracking\Model\ResourceModel\Narvar\CollectionFactory as NarVarCollection;
 
 class ReturnRepository implements ReturnRepositoryInterface
 {
@@ -50,30 +50,20 @@ class ReturnRepository implements ReturnRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function getReturnJson($orderNumber, $items = [])
+    public function getReturnJson($orderNumber)
     {
         /** @var  Order $order */
         $order = $this->findOrderByOrderNumber($orderNumber);
 
         if ($order->isEmpty()) {
-            return __('Order number is not available');
+            exit('Order number is not available');
         }
 
-        $orderItems = $order->getItems();
-        $_json      = $this->generateReturnJson($order);
-
-        // Get Shipment line items
-        if (count($items)) {
-            $_json['ShipmentLines'] = $this->generateCustomizeReturnLinesJson($orderItems, $items);
-        } else {
-            $_json['ShipmentLines'] = $this->generateReturnLinesJson($orderItems);
-        }
-
-        $_json       = json_encode($_json, JSON_PRETTY_PRINT);
+        $_json = $this->generateReturnJson($order);
+        $_json = json_encode($_json, JSON_PRETTY_PRINT);
         $json_string = stripslashes($_json);
         printf($json_string);
         exit();
-
     }
 
     /**
@@ -86,16 +76,16 @@ class ReturnRepository implements ReturnRepositoryInterface
 
         // Get Shipment line items
         foreach ($orderItems as $orderItem) {
-            $_shipmentLine                       = [];
-            $shipmentInfos['Qty']                = (int)$orderItem->getQtyOrdered();
-            $_shipmentLine['Weight']             = 0;
-            $_shipmentLine['Cost']               = 0;
-            $_shipmentLine['RetailPrice']        = 0;
-            $_shipmentLine['ItemIdentifier']     = [
+            $_returnLine                       = [];
+            $_returnLine['Quantity']           = (int)$orderItem->getQtyOrdered();
+            $_returnLine['Weight']             = 0;
+            $_returnLine['Cost']               = 0;
+            $_returnLine['RetailPrice']        = 0;
+            $_returnLine['ItemIdentifier']     = [
                 'SupplierSKU' => $orderItem->getSku(),
                 'PartnerSKU' => $orderItem->getSku()
             ];
-            $_shipmentLine['ExtendedAttributes'] = [
+            $_returnLine['ExtendedAttributes'] = [
                 [
                     'Value' => '10',
                     'Name'  => 'SI_returnCode'
@@ -156,7 +146,7 @@ class ReturnRepository implements ReturnRepositoryInterface
                 ]
             ];
 
-            $result[] = $_shipmentLine;
+            $result[] = $_returnLine;
         }
 
         return $result;
@@ -164,7 +154,6 @@ class ReturnRepository implements ReturnRepositoryInterface
 
     public function generateReturnJson(Order $order)
     {
-
         $payment      = $order->getPayment();
         $method       = $payment->getMethod();
         $companyId    = $this->_helper->getSupplierNumber($order->getStoreId());
@@ -277,6 +266,8 @@ class ReturnRepository implements ReturnRepositoryInterface
                 'Section' => 'Documents',
             ]
         ];
+
+        $_json['ReturnLines'] = $this->generateReturnLinesJson($order->getItems());
 
         return $_json;
     }

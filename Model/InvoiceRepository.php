@@ -98,7 +98,7 @@ class InvoiceRepository implements InvoiceRepositoryInterface
         $order = $this->findOrderByOrderNumber($orderNumber);
 
         if ($order->isEmpty()) {
-            return __('Order number is not available');
+            exit('Order number is not available');
         }
 
         /** @var string $shippingMethod */
