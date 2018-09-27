@@ -2,6 +2,9 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="../../../../../lib/internal/Magento/Framework/ObjectManager/etc/config.xsd">
 
+    <preference for="FossilEcommerce\LBDocumentGenerator\Api\GeneratorRepositoryInterface"
+                type="FossilEcommerce\LBDocumentGenerator\Model\GeneratorRepository" />
+
     <preference for="FossilEcommerce\LBDocumentGenerator\Api\InvoiceRepositoryInterface"
                 type="FossilEcommerce\LBDocumentGenerator\Model\InvoiceRepository" />
 
