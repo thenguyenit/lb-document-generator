@@ -2,8 +2,16 @@
 
 namespace FossilEcommerce\LBDocumentGenerator\Api;
 
-interface InvoiceRepositoryInterface
+interface GeneratorRepositoryInterface
 {
+    /**
+     * Get Json to create Shipment on Logic Broker
+     *
+     * @param string $orderNumber
+     * @return string
+     */
+    public function getReturnJson($orderNumber);
+
     /**
      * Get Json to create Shipment on Logic Broker
      *
