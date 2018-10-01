@@ -60,6 +60,9 @@ class ReturnRepository implements ReturnRepositoryInterface
         }
 
         $_json = $this->generateReturnJson($order);
+        if (empty($_json)) {
+            exit('Failed generate return, since the order not found on Logic Broker');
+        }
         $_json = json_encode($_json, JSON_PRETTY_PRINT);
         $json_string = stripslashes($_json);
         printf($json_string);
@@ -76,6 +79,9 @@ class ReturnRepository implements ReturnRepositoryInterface
 
         // Get Shipment line items
         foreach ($orderItems as $orderItem) {
+            if ($orderItem->getProductType() == 'configurable') {
+                continue;
+            }
             $_returnLine                       = [];
             $_returnLine['Quantity']           = (int)$orderItem->getQtyOrdered();
             $_returnLine['Weight']             = 0;
@@ -160,6 +166,9 @@ class ReturnRepository implements ReturnRepositoryInterface
         $randomNumber = (string)rand(10000000000, 99999999999);
         $currentTime  = date('Y-m-d\TH:i:s', time());
         $linkKey      = $this->getLinkKey($order->getLogicbrokerKey());
+        if (is_null($linkKey)) {
+            return false;
+        }
 
         $_json                         = [];
         $_json['ShipFromAddress']      = [
@@ -294,10 +303,14 @@ class ReturnRepository implements ReturnRepositoryInterface
     {
         $url = $this->_helper->getApiUrl() . "api/v1/Orders/$lbKey?subscription-key={$this->_helper->getApiKey()}";
 
-        $apiRes   = $this->_helper->getFromApi($url, array('Body'));
-        $_apiRes  = $apiRes['Result'];
-        $_linkKey = $_apiRes->SalesOrder->Identifier->LinkKey;
+        $apiRes = $this->_helper->getFromApi($url, array('Body'));
+        $_apiRes = $apiRes['Result'];
+        if (property_exists($_apiRes, 'SalesOrder')) {
 
-        return $_linkKey;
+            $_linkKey = $_apiRes->SalesOrder->Identifier->LinkKey;
+            return $_linkKey;
+        }
+
+        return null;
     }
 }

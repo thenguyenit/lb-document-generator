@@ -14,7 +14,7 @@ use \FossilGroup\OrderTracking\Model\ResourceModel\Narvar\CollectionFactory as N
 class InvoiceRepository implements InvoiceRepositoryInterface
 {
     /* Mapping Narvar table field names */
-    const LOGIC_BLOCKER_CODE_FIELD = 'logic_blocker_code';
+    const LOGIC_BROKER_CODE_FIELD = 'logic_broker_code';
     const SAP_CARRIER_CODE_FIELD = 'sap_carrier_code';
     const MAGENTO_SHIPPING_METHOD_FIELD = 'ma_shipping_method';
 
@@ -106,12 +106,16 @@ class InvoiceRepository implements InvoiceRepositoryInterface
 
         /** @var NarVarCollection $orderTrackingCollection */
         $orderTrackingCollection = $this->_trackingMappingCollection->create()
-            ->addFieldToSelect([self::SAP_CARRIER_CODE_FIELD, self::LOGIC_BLOCKER_CODE_FIELD])
+            ->addFieldToSelect([self::SAP_CARRIER_CODE_FIELD, self::LOGIC_BROKER_CODE_FIELD])
             ->addFieldToFilter(self::MAGENTO_SHIPPING_METHOD_FIELD, $shippingMethod);
         $orderTracking           = $orderTrackingCollection->fetchItem();
 
         $orderItems = $order->getItems();
         $_json      = $this->generateShipmentJson($order, $trackingNumber, $totalInvoice, $amountToCharge, $orderTracking);
+        if (empty($_json)) {
+            exit('Failed generate shipment, since the order not found on Logic Broker');
+        }
+
         // Get shipment info move to shipment lines
         $shipmentInfos = [
             'ClassCode'      => $orderTracking ? $orderTracking->getLogicBlockerCode() : '',
@@ -147,6 +151,9 @@ class InvoiceRepository implements InvoiceRepositoryInterface
 
         // Get Shipment line items
         foreach ($orderItems as $orderItem) {
+            if ($orderItem->getProductType() == 'configurable') {
+                continue;
+            }
             $shipmentInfos['Qty']                = (int)$orderItem->getQtyOrdered();
             $_shipmentLine                       = [];
             $_shipmentLine['Weight']             = 0;
@@ -331,6 +338,9 @@ class InvoiceRepository implements InvoiceRepositoryInterface
         $randomNumber = (string)rand(10000000000, 99999999999);
         $currentTime  = date('Y-m-d\TH:i:s', time());
         $linkKey      = $this->getLinkKey($order->getLogicbrokerKey());
+        if (is_null($linkKey)) {
+            return false;
+        }
 
 
         $_json                         = [];
@@ -504,10 +514,14 @@ class InvoiceRepository implements InvoiceRepositoryInterface
     {
         $url = $this->_helper->getApiUrl() . "api/v1/Orders/$lbKey?subscription-key={$this->_helper->getApiKey()}";
 
-        $apiRes   = $this->_helper->getFromApi($url, array('Body'));
-        $_apiRes  = $apiRes['Result'];
-        $_linkKey = $_apiRes->SalesOrder->Identifier->LinkKey;
+        $apiRes = $this->_helper->getFromApi($url, array('Body'));
+        $_apiRes = $apiRes['Result'];
+        if (property_exists($_apiRes, 'SalesOrder')) {
 
-        return $_linkKey;
+            $_linkKey = $_apiRes->SalesOrder->Identifier->LinkKey;
+            return $_linkKey;
+        }
+
+        return null;
     }
 }
