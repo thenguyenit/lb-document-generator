@@ -30,6 +30,34 @@ Add these lines to the composer.json of your project and run composer install
  }
 ```
 
+Keys in: Bitbutket-Oauth or adding these lines to auth.json
+```
+{
+    "http-basic": {
+        "repo.magento.com": {
+            "username": "***",
+            "password": "***"
+        },
+        "composer.amasty.com": {
+            "username": "***",
+            "password": "***"
+        },
+        "github.com": {
+            "username": "***",
+            "password": "***"
+        }
+    },
+    "bitbucket-oauth": {
+        "bitbucket.org": {
+            "consumer-key": "bBd6htKsuHTEt7J7LJ",
+            "consumer-secret": "7GYp5GWKRX5CqkYANBCLX7YgdNhgwY2y",
+            "access-token": "DdMZAiPklOHVKaFnB6NbszbHHCUdzmutc-_xwr02Hp6BK52y8uVuzuWPimpo58fipqhxMcaxyiNZvnji4rg=",
+            "access-token-expiration": 1538114983
+        }
+    }
+}
+```
+
 Changelog
 ----------
 
