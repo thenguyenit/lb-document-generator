@@ -11,14 +11,14 @@ Add these lines to the composer.json of your project
       ...
      "fossil-ecommerce": {
             "type": "vcs",
-            "url":"https://bitbucket.org/fossil-ecommerce/lb-document-generator.git"
+            "url":"git@github.com:thenguyenit/lb-document-generator.git"
       }
  ]
 ```
 
 Run the command:
 ```
-composer require --dev fossil-ecommerce/lb-document-generator:dev-master
+composer require --dev fossil-ecommerce/lb-document-generator
 ```
 Or
 Add these lines to the composer.json of your project and run composer install
@@ -34,25 +34,10 @@ Keys in: Bitbutket-Oauth or adding these lines to auth.json
 ```
 {
     "http-basic": {
-        "repo.magento.com": {
-            "username": "***",
-            "password": "***"
-        },
-        "composer.amasty.com": {
-            "username": "***",
-            "password": "***"
-        },
+        ...
         "github.com": {
             "username": "***",
             "password": "***"
-        }
-    },
-    "bitbucket-oauth": {
-        "bitbucket.org": {
-            "consumer-key": "bBd6htKsuHTEt7J7LJ",
-            "consumer-secret": "7GYp5GWKRX5CqkYANBCLX7YgdNhgwY2y",
-            "access-token": "DdMZAiPklOHVKaFnB6NbszbHHCUdzmutc-_xwr02Hp6BK52y8uVuzuWPimpo58fipqhxMcaxyiNZvnji4rg=",
-            "access-token-expiration": 1538114983
         }
     }
 }
