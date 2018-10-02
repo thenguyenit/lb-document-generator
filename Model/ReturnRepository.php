@@ -79,7 +79,7 @@ class ReturnRepository implements ReturnRepositoryInterface
 
         // Get Shipment line items
         foreach ($orderItems as $orderItem) {
-            if ($orderItem->getProductType() == 'configurable') {
+            if ($orderItem->getProductType() === "simple" && $orderItem->getParentItemId() !== null) {
                 continue;
             }
             $_returnLine                       = [];

@@ -151,7 +151,7 @@ class InvoiceRepository implements InvoiceRepositoryInterface
 
         // Get Shipment line items
         foreach ($orderItems as $orderItem) {
-            if ($orderItem->getProductType() == 'configurable') {
+            if ($orderItem->getProductType() === "simple" && $orderItem->getParentItemId() !== null) {
                 continue;
             }
             $shipmentInfos['Qty']                = (int)$orderItem->getQtyOrdered();
