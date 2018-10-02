@@ -5,7 +5,7 @@
   "repositories":[
     {
       "type": "vcs",
-      "url":"git@bitbucket.org:fossil-ecommerce/lb-document-generator.git"
+      "url":"git@github.com:thenguyenit/lb-document-generator.git"
     }
   ],
   "require": {
